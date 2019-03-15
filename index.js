@@ -469,7 +469,7 @@ instance.prototype.action = function(action) {
 			cmd = "\u0002PP2:" + options.horizontal + "," + options.vertical + ";";
 			break;
 		case "split_position":
-			cmd = "\u0002PP1:" + options.value1 + "," + options.value2 + ";";
+			cmd = "\u0002SPT:" + options.value1 + "," + options.value2 + ";";
 			break;
 		case "dsk_selectsource":
 			cmd = "\u0002DSS:" + options.source + ";";
@@ -481,7 +481,7 @@ instance.prototype.action = function(action) {
 			cmd = "\u0002KYG:" + options.level + ";";
 			break;
 		case "select_channel6input":
-			cmd = "\u0002IPS:" + options.inputconector + ";";
+			cmd = "\u0002IPS:" + options.inputconnector + ";";
 			break;
 		case "select_outputbus_sdi1":
 			cmd = "\u0002OS1:" + options.bus + ";";
