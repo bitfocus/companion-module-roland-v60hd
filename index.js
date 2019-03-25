@@ -81,16 +81,7 @@ instance.prototype.init_tcp = function() {
 		// if we get any data, display it to stdout
 		self.socket.on("data", function(buffer) {
 			var indata = buffer.toString("utf8");
-			//self.incomingData(indata);
-			console.log(indata);
-			
-			//ACK = command processed sucessfully
-			//change state to good state if ACK received
-			
-			//stxERR:0 = (syntax error) The received command contains an error.
-			//stxERR:4 = (invalid) This has no effect because it is controlled by another setting.
-			//stxERR:5 = (out of range error) An argument of the received command is out of range.
-			//change state to error state if error received
+			//future feedback can be added here
 		});
 
 	}
