@@ -2,7 +2,7 @@
   "name": "roland-v60hd",
   "version": "1.0.0",
 	"api_version": "1.0.0",
-	"keywords": [ "Roland" ],
+	"keywords": [ "Roland", "V-60HD", "Vision Mixer" ],
 	"manufacturer": "Roland",
 	"product": "V-60HD",
 	"shortname": "v-60hd",
