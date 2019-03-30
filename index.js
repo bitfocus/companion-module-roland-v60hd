@@ -444,7 +444,7 @@ instance.prototype.action = function(action) {
 		case "dsk":
 			cmd = "\u0002DSK;";
 			break;
-		case "dsk_pvew":
+		case "dsk_pvw":
 			cmd = "\u0002DVW;";
 			break;
 		case "dsk_automixing":
