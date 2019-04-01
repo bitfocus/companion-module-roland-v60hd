@@ -430,7 +430,7 @@ instance.prototype.action = function(action) {
 			cmd = "\u0002CUT;";
 			break;
 		case "auto":
-			cmd = "\u0002AUTO;";
+			cmd = "\u0002ATO;";
 			break;
 		case "pinp1":
 			cmd = "\u0002P1S;";
