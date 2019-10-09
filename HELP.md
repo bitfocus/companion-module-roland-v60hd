@@ -2,6 +2,8 @@
 
 This module will allow you to control a Roland V-60HD video switcher.
 
+> The Roland only accepts 1 connection at a time
+
 ### Configuration
 * Enter the IP address of the device in the configuration settings.
 * The device will use TCP port 8023.
