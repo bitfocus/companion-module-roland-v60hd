@@ -1,8 +1,8 @@
 {
 	"name": "roland-v60hd",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"api_version": "1.0.0",
-	"keywords": [ "Vision Mixer" ],
+	"keywords": [ "Vision Mixer", "Video Switcher" ],
 	"manufacturer": "Roland",
 	"product": "V-60HD",
 	"shortname": "v-60hd",
