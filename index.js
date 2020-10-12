@@ -439,7 +439,7 @@ instance.prototype.action = function(action) {
 			cmd = "\u0002P2S;";
 			break;
 		case "split":
-			cmd = "\u0002SPT;";
+			cmd = "\u0002SPS;";
 			break;
 		case "dsk":
 			cmd = "\u0002DSK;";
