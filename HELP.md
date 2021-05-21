@@ -7,6 +7,7 @@ This module will allow you to control a Roland V-60HD video switcher.
 ### Configuration
 * Enter the IP address of the device in the configuration settings.
 * The device will use TCP port 8023.
+* There is a config setting for the period of the timer used to poll the device for status.
 
 **Available actions:**
 * Select channel for final video output
@@ -36,3 +37,6 @@ This module will allow you to control a Roland V-60HD video switcher.
 * Set the output bus to assign to the HDMI OUT 2 connector
 * Set HDCP on/off
 * Call up preset memory
+
+**Available feedbacks:**
+Input status for Program, Preset and Aux
