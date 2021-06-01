@@ -97,7 +97,7 @@ class instance extends instance_skel {
 				pipeline += receivebuffer.toString('utf8')
 				if (pipeline.length == 1 && pipeline.charAt(0) == '\u0006') {
 					// process simple <ack> responses (06H) as these come back for all successsful Control commands
-					this.cmdPipe.pop()
+					this.cmdPipeNext()
 					pipeline = ''
 				} else {
 					// partial response pipeline processing as TCP Serial module can return partial responses in stream.
@@ -105,14 +105,15 @@ class instance extends instance_skel {
 						// got at least one command terminated with ';'
 						// multiple rapid Query strings can result in async multiple responses so split response into individual messages
 						let allresponses = pipeline.split(';')
-						pipeline = allresponses.pop() // last element will either be a partial response or an empty string from split where a complete pipeline ends with ';'
+						// last element will either be a partial response an <ack> (processed next timer tick) or an empty string from split where a complete pipeline ends with ';'
+						pipeline = allresponses.pop() 
 						for (let response of allresponses) {
+							// Chance of leading <ack> responses from key commands or prior Query
+							while (response.charAt[0] == '\u0006') {
+								response = response.slice(1)
+								this.cmdPipeNext()
+							}
 							if (response.length > 0) {
-								// Small chance of embedded <ack> responses. From previous pipeline split these will be at start of response
-								while (response.charAt[0] == '\u0006') {
-									response = response.slice(1)
-									this.cmdPipe.pop()
-								}
 								this.processResponse(response)
 							}
 						}
@@ -121,12 +122,19 @@ class instance extends instance_skel {
 			})
 		}
 	}
-
+	cmdPipeNext() {
+		if (this.cmdPipe.length > 0) {
+		  return this.cmdPipe.pop();
+		} else {
+		  this.log("error", "Unexpected response count (pipe underrun)");
+		  return "";
+		}
+	  }
 	processResponse(response) {
-		let pipeitem = this.cmdPipe.pop()
-		let startchar = response.charAt(0)
-		if (startchar == '\u0002' && response.substring(1, 5) == 'ERR:') {
-			let errcode = response.substring(5, 6)
+		let category = 'XXX'
+		let args = []
+
+		const errorMessage = (errcode, pipeitem) => {
 			let errstring = ''
 			switch (errcode) {
 				case '0':
@@ -143,22 +151,23 @@ class instance extends instance_skel {
 					break
 			}
 			this.log('error', 'ERR: ' + errstring + ' - Command = ' + pipeitem)
-		} else {
-			let category = response.substring(1, 4)
-			let settingseparator = response.substring(4, 5)
-			let argstring = response.substring(5, response.length) // from start of params to end of string
-			let args = argstring.split(',')
-			if (startchar !== '\u0002' || settingseparator !== ':' || args.length > 8) {
-				this.log('error', 'Response not in expected format = ' + response)
-			} else {
-				switch (category) {
-					case 'QPL': //button settings array (polled)
-						this.buttonSet = args
-						this.checkFeedbacks()
-						break
-				}
-			}
 		}
+ 
+		let settingseparator = response.search(':')
+		if (settingseparator > 2) {
+			category = response.substring(settingseparator-3, settingseparator)
+			let argstring = response.substring(settingseparator + 1, response.length) // from start of params to end of string
+			args = argstring.split(',')
+		} 
+		switch (category) {
+			case 'QPL': //button settings array (polled)
+				this.buttonSet = args
+				this.checkFeedbacks()
+				break
+			case 'ERR':
+				errorMessage(args[0], this.cmdPipeNext())
+			break
+		}	
 	}
 	sendCommmand(cmd) {
 		if (cmd !== undefined) {
@@ -186,7 +195,7 @@ class instance extends instance_skel {
 				id: 'info',
 				width: 12,
 				label: 'Information',
-				value: 'This module will connect to a Roland Pro AV V-60HD Video Switcher.',
+				value: 'This module will connect to a Roland Pro AV V-60HD Video Switcher. (with feedbacks)',
 			},
 			{
 				type: 'textinput',
