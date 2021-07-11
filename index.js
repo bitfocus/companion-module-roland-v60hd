@@ -106,7 +106,7 @@ class instance extends instance_skel {
 						// multiple rapid Query strings can result in async multiple responses so split response into individual messages
 						let allresponses = pipeline.split(';')
 						// last element will either be a partial response an <ack> (processed next timer tick) or an empty string from split where a complete pipeline ends with ';'
-						pipeline = allresponses.pop() 
+						pipeline = allresponses.pop()
 						for (let response of allresponses) {
 							// Chance of leading <ack> responses from key commands or prior Query
 							while (response.charAt[0] == '\u0006') {
@@ -124,12 +124,12 @@ class instance extends instance_skel {
 	}
 	cmdPipeNext() {
 		if (this.cmdPipe.length > 0) {
-		  return this.cmdPipe.pop();
+			return this.cmdPipe.pop()
 		} else {
-		  this.log("error", "Unexpected response count (pipe underrun)");
-		  return "";
+			this.log('error', 'Unexpected response count (pipe underrun)')
+			return ''
 		}
-	  }
+	}
 	processResponse(response) {
 		let category = 'XXX'
 		let args = []
@@ -152,13 +152,13 @@ class instance extends instance_skel {
 			}
 			this.log('error', 'ERR: ' + errstring + ' - Command = ' + pipeitem)
 		}
- 
+
 		let settingseparator = response.search(':')
 		if (settingseparator > 2) {
-			category = response.substring(settingseparator-3, settingseparator)
+			category = response.substring(settingseparator - 3, settingseparator)
 			let argstring = response.substring(settingseparator + 1, response.length) // from start of params to end of string
 			args = argstring.split(',')
-		} 
+		}
 		switch (category) {
 			case 'QPL': //button settings array (polled)
 				this.buttonSet = args
@@ -166,8 +166,8 @@ class instance extends instance_skel {
 				break
 			case 'ERR':
 				errorMessage(args[0], this.cmdPipeNext())
-			break
-		}	
+				break
+		}
 	}
 	sendCommmand(cmd) {
 		if (cmd !== undefined) {

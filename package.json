@@ -16,6 +16,7 @@
 		"url": "git+https://github.com/bitfocus/companion-module-roland-v60hd.git"
 	},
 	"author": "Joseph Adams <josephdadams@gmail.com>",
+	"contributors": ["James Rankin"],
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/bitfocus/companion-module-roland-v60hd/issues"
