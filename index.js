@@ -1,10 +1,10 @@
 // Roland-V60HD
 
-let tcp = require('../../tcp');
-let instance_skel = require('../../instance_skel');
+let tcp = require('../../tcp')
+let instance_skel = require('../../instance_skel')
 
-var debug;
-var log;
+var debug
+var log
 
 class instance extends instance_skel {
 	constructor(system, id, config) {
@@ -62,7 +62,7 @@ class instance extends instance_skel {
 		this.initFeedbacks()
 		this.init_tcp()
 		this.initPolling()
-		this.initPresets();
+		this.initPresets()
 	}
 
 	init_tcp() {
@@ -749,4 +749,4 @@ class instance extends instance_skel {
 		this.setPresetDefinitions(presets)
 	}
 }
-exports = module.exports = instance;
+exports = module.exports = instance
