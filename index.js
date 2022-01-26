@@ -106,7 +106,7 @@ class instance extends instance_skel {
 						// multiple rapid Query strings can result in async multiple responses so split response into individual messages
 						let allresponses = pipeline.split(';')
 						// last element will either be a partial response an <ack> (processed next timer tick) or an empty string from split where a complete pipeline ends with ';'
-						pipeline = allresponses.pop()
+						pipeline = allresponses.pop() 
 						for (let response of allresponses) {
 							// Chance of leading <ack> responses from key commands or prior Query
 							while (response.charAt[0] == '\u0006') {
@@ -124,12 +124,12 @@ class instance extends instance_skel {
 	}
 	cmdPipeNext() {
 		if (this.cmdPipe.length > 0) {
-			return this.cmdPipe.pop()
+		  return this.cmdPipe.pop()
 		} else {
-			this.log('error', 'Unexpected response count (pipe underrun)')
-			return ''
+		  this.log('error', 'Unexpected response count (pipe underrun)')
+		  return ''
 		}
-	}
+	  }
 	processResponse(response) {
 		let category = 'XXX'
 		let args = []
@@ -152,13 +152,13 @@ class instance extends instance_skel {
 			}
 			this.log('error', 'ERR: ' + errstring + ' - Command = ' + pipeitem)
 		}
-
+ 
 		let settingseparator = response.search(':')
 		if (settingseparator > 2) {
 			category = response.substring(settingseparator - 3, settingseparator)
 			let argstring = response.substring(settingseparator + 1, response.length) // from start of params to end of string
 			args = argstring.split(',')
-		}
+		} 
 		switch (category) {
 			case 'QPL': //button settings array (polled)
 				this.buttonSet = args
@@ -166,8 +166,8 @@ class instance extends instance_skel {
 				break
 			case 'ERR':
 				errorMessage(args[0], this.cmdPipeNext())
-				break
-		}
+			break
+		}	
 	}
 	sendCommmand(cmd) {
 		if (cmd !== undefined) {
@@ -303,11 +303,11 @@ class instance extends instance_skel {
 			dsk_pvw: {
 				label: 'Press the DSK [PVW] button',
 			},
-			dsk_automixing: {
-				label: 'Press the DSK [AUTO MIXING] button',
+			automixing: {
+				label: 'Press the [AUTO MIXING] button',
 			},
-			dsk_outputfade: {
-				label: 'Press the DSK [OUTPUT FADE] button',
+			outputfade: {
+				label: 'Press the [OUTPUT FADE] button',
 			},
 			pinp1_position: {
 				label: 'Adjust display position of inset screen assigned to the [PinP 1] button',
@@ -538,10 +538,10 @@ class instance extends instance_skel {
 			case 'dsk_pvw':
 				cmd = 'DVW'
 				break
-			case 'dsk_automixing':
+			case 'automixing':
 				cmd = 'ATM'
 				break
-			case 'dsk_outputfade':
+			case 'outputfade':
 				cmd = 'FDE'
 				break
 			case 'pinp1_position':
@@ -662,6 +662,86 @@ class instance extends instance_skel {
 			callback: (feedback, bank) => {
 				let opt = feedback.options
 				if (this.buttonSet[2] == opt.input) {
+					return true
+				} else {
+					return false
+				}
+			},
+		}
+		feedbacks['dsk'] = {
+			type: 'boolean',
+			label: 'DSK Status',
+			description: 'Show DSK status',
+			style: {
+				color: this.rgb(0, 0, 0),
+				bgcolor: this.rgb(255, 0, 0),
+			},
+			callback: (feedback, bank) => {
+				if (this.buttonSet[4] == '1') {
+					return true
+				} else {
+					return false
+				}
+			},
+		}
+		feedbacks['PinP1status'] = {
+			type: 'boolean',
+			label: 'PinP 1 Status',
+			description: 'Show PinP 1 status',
+			style: {
+				color: this.rgb(0, 0, 0),
+				bgcolor: this.rgb(0, 255, 0),
+			},
+			callback: (feedback, bank) => {
+				if (this.buttonSet[3] == '1') {
+					return true
+				} else {
+					return false
+				}
+			},
+		}
+		feedbacks['PinP2status'] = {
+			type: 'boolean',
+			label: 'PinP 2 Status',
+			description: 'Show PinP 2 status',
+			style: {
+				color: this.rgb(0, 0, 0),
+				bgcolor: this.rgb(0, 255, 0),
+			},
+			callback: (feedback, bank) => {
+				if (this.buttonSet[3] == '2') {
+					return true
+				} else {
+					return false
+				}
+			},
+		}
+		feedbacks['SPLITstatus'] = {
+			type: 'boolean',
+			label: 'SPLIT Status',
+			description: 'Show SPLIT status',
+			style: {
+				color: this.rgb(0, 0, 0),
+				bgcolor: this.rgb(0, 255, 0),
+			},
+			callback: (feedback, bank) => {
+				if (this.buttonSet[3] == '3') {
+					return true
+				} else {
+					return false
+				}
+			},
+		}
+		feedbacks['outputfade'] = {
+			type: 'boolean',
+			label: 'Output Fade Status',
+			description: 'Show Output Fade status',
+			style: {
+				color: this.rgb(0, 0, 0),
+				bgcolor: this.rgb(255, 0, 0),
+			},
+			callback: (feedback, bank) => {
+				if (this.buttonSet[5] == '1') {
 					return true
 				} else {
 					return false

@@ -40,3 +40,4 @@ This module will allow you to control a Roland V-60HD video switcher.
 
 **Available feedbacks:**
 Input status for Program, Preset and Aux
+Status for DSK, Output Fade and PinP/SPLIT
