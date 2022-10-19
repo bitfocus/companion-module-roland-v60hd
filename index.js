@@ -90,6 +90,7 @@ class instance extends instance_skel {
 			})
 
 			this.socket.on('connect', () => {
+				this.cmdPipe = []
 				debug('Connected')
 			})
 
@@ -127,7 +128,6 @@ class instance extends instance_skel {
 			const return_cmd = this.cmdPipe.shift()
 
 			if(this.cmdPipe.length > 0) {
-				console.log(this.cmdPipe)
 				this.socket.send('\u0002' + this.cmdPipe[0] + ';')
 			}
 
