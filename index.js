@@ -124,12 +124,19 @@ class instance extends instance_skel {
 	}
 	cmdPipeNext() {
 		if (this.cmdPipe.length > 0) {
-		  return this.cmdPipe.pop()
+			const return_cmd = this.cmdPipe.shift()
+
+			if(this.cmdPipe.length > 0) {
+				console.log(this.cmdPipe)
+				this.socket.send('\u0002' + this.cmdPipe[0] + ';')
+			}
+
+			return return_cmd
 		} else {
-		  this.log('error', 'Unexpected response count (pipe underrun)')
-		  return ''
+			this.log('error', 'Unexpected response count (pipe underrun)')
+			return ''
 		}
-	  }
+	}
 	processResponse(response) {
 		let category = 'XXX'
 		let args = []
@@ -172,8 +179,11 @@ class instance extends instance_skel {
 	sendCommmand(cmd) {
 		if (cmd !== undefined) {
 			if (this.socket !== undefined && this.socket.connected) {
-				this.socket.send('\u0002' + cmd + ';')
-				this.cmdPipe.unshift(cmd) // pipe buffer to match commands and responses asynchronously
+				this.cmdPipe.push(cmd)
+
+				if(this.cmdPipe.length === 1) {
+					this.socket.send('\u0002' + cmd + ';')
+				}
 			} else {
 				debug('Socket not connected :(')
 			}
@@ -183,7 +193,9 @@ class instance extends instance_skel {
 	initPolling() {
 		if (this.pollMixerTimer === undefined) {
 			this.pollMixerTimer = setInterval(() => {
-				this.sendCommmand('QPL:7')
+				if(!this.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
+					this.sendCommmand('QPL:7')
+				}
 			}, this.config.poll_interval)
 		}
 	}
