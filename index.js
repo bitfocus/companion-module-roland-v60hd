@@ -191,7 +191,7 @@ class instance extends instance_skel {
 	}
 
 	initPolling() {
-		if (this.pollMixerTimer === undefined) {
+		if (this.pollMixerTimer === undefined && this.config.poll_interval > 0) {
 			this.pollMixerTimer = setInterval(() => {
 				if(!this.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
 					this.sendCommmand('QPL:7')
@@ -220,10 +220,10 @@ class instance extends instance_skel {
 			{
 				type: 'number',
 				id: 'poll_interval',
-				label: 'Polling Interval (ms)',
-				min: 300,
+				label: 'Polling Interval (ms), set to 0 to disable polling',
+				min: 0,
 				max: 30000,
-				default: 500,
+				default: 0,
 				width: 8,
 			},
 		]
