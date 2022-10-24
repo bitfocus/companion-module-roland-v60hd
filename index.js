@@ -239,6 +239,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -251,6 +252,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -263,6 +265,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -380,6 +383,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -515,13 +519,13 @@ class instance extends instance_skel {
 
 		switch (action.action) {
 			case 'select_pgm':
-				cmd = 'PGM:' + options.source
+				cmd = 'PGM:'
 				break
 			case 'select_pvw':
-				cmd = 'PST:' + options.source
+				cmd = 'PST:'
 				break
 			case 'select_aux':
-				cmd = 'AUX:' + options.source
+				cmd = 'AUX:'
 				break
 			case 'select_transition_effect':
 				cmd = 'TRS:' + options.transitioneffect
@@ -566,7 +570,7 @@ class instance extends instance_skel {
 				cmd = 'SPT:' + options.value1 + ',' + options.value2
 				break
 			case 'dsk_selectsource':
-				cmd = 'DSS:' + options.source
+				cmd = 'DSS:'
 				break
 			case 'dsk_keylevel':
 				cmd = 'KYL:' + options.level
@@ -596,7 +600,14 @@ class instance extends instance_skel {
 				cmd = 'MEM:' + options.preset
 				break
 		}
-		this.sendCommmand(cmd)
+
+		if ('source' in options) {
+			this.parseVariables(options.source, (src) => {
+				this.sendCommmand(cmd + src);
+			});
+		} else {
+			this.sendCommmand(cmd)
+		}
 	}
 
 	initFeedbacks() {
