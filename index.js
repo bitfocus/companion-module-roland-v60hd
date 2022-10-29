@@ -90,6 +90,7 @@ class instance extends instance_skel {
 			})
 
 			this.socket.on('connect', () => {
+				this.cmdPipe = []
 				debug('Connected')
 			})
 
@@ -124,12 +125,18 @@ class instance extends instance_skel {
 	}
 	cmdPipeNext() {
 		if (this.cmdPipe.length > 0) {
-		  return this.cmdPipe.pop()
+			const return_cmd = this.cmdPipe.shift()
+
+			if(this.cmdPipe.length > 0) {
+				this.socket.send('\u0002' + this.cmdPipe[0] + ';')
+			}
+
+			return return_cmd
 		} else {
-		  this.log('error', 'Unexpected response count (pipe underrun)')
-		  return ''
+			this.log('error', 'Unexpected response count (pipe underrun)')
+			return ''
 		}
-	  }
+	}
 	processResponse(response) {
 		let category = 'XXX'
 		let args = []
@@ -172,8 +179,11 @@ class instance extends instance_skel {
 	sendCommmand(cmd) {
 		if (cmd !== undefined) {
 			if (this.socket !== undefined && this.socket.connected) {
-				this.socket.send('\u0002' + cmd + ';')
-				this.cmdPipe.unshift(cmd) // pipe buffer to match commands and responses asynchronously
+				this.cmdPipe.push(cmd)
+
+				if(this.cmdPipe.length === 1) {
+					this.socket.send('\u0002' + cmd + ';')
+				}
 			} else {
 				debug('Socket not connected :(')
 			}
@@ -181,9 +191,11 @@ class instance extends instance_skel {
 	}
 
 	initPolling() {
-		if (this.pollMixerTimer === undefined) {
+		if (this.pollMixerTimer === undefined && this.config.poll_interval > 0) {
 			this.pollMixerTimer = setInterval(() => {
-				this.sendCommmand('QPL:7')
+				if(!this.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
+					this.sendCommmand('QPL:7')
+				}
 			}, this.config.poll_interval)
 		}
 	}
@@ -208,10 +220,10 @@ class instance extends instance_skel {
 			{
 				type: 'number',
 				id: 'poll_interval',
-				label: 'Polling Interval (ms)',
-				min: 300,
+				label: 'Polling Interval (ms), set to 0 to disable polling',
+				min: 0,
 				max: 30000,
-				default: 500,
+				default: 0,
 				width: 8,
 			},
 		]
@@ -227,6 +239,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -239,6 +252,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -251,6 +265,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -368,6 +383,7 @@ class instance extends instance_skel {
 						label: 'Source',
 						id: 'source',
 						default: '0',
+						allowCustom: true,
 						choices: this.CHOICES_INPUTS,
 					},
 				],
@@ -503,13 +519,13 @@ class instance extends instance_skel {
 
 		switch (action.action) {
 			case 'select_pgm':
-				cmd = 'PGM:' + options.source
+				cmd = 'PGM:'
 				break
 			case 'select_pvw':
-				cmd = 'PST:' + options.source
+				cmd = 'PST:'
 				break
 			case 'select_aux':
-				cmd = 'AUX:' + options.source
+				cmd = 'AUX:'
 				break
 			case 'select_transition_effect':
 				cmd = 'TRS:' + options.transitioneffect
@@ -554,7 +570,7 @@ class instance extends instance_skel {
 				cmd = 'SPT:' + options.value1 + ',' + options.value2
 				break
 			case 'dsk_selectsource':
-				cmd = 'DSS:' + options.source
+				cmd = 'DSS:'
 				break
 			case 'dsk_keylevel':
 				cmd = 'KYL:' + options.level
@@ -584,7 +600,14 @@ class instance extends instance_skel {
 				cmd = 'MEM:' + options.preset
 				break
 		}
-		this.sendCommmand(cmd)
+
+		if ('source' in options) {
+			this.parseVariables(options.source, (src) => {
+				this.sendCommmand(cmd + src);
+			});
+		} else {
+			this.sendCommmand(cmd)
+		}
 	}
 
 	initFeedbacks() {
