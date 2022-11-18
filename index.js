@@ -30,6 +30,20 @@ class instance extends instance_skel {
 			{ id: '1', label: 'Preset/Preview' },
 			{ id: '2', label: 'Aux' },
 		]
+
+		this.CHOICES_MUTES = [
+			{ label: 'AUDIO IN 1', id: '0' },
+			{ label: 'AUDIO IN 2', id: '1' },
+			{ label: 'AUDIO IN 3', id: '2' },
+			{ label: 'AUDIO IN 4', id: '3' },
+			{ label: 'AUDIO IN 5/6', id: '4' },
+			{ label: 'SDI 1', id: '5' },
+			{ label: 'SDI 2', id: '6' },
+			{ label: 'SDI 3', id: '7' },
+			{ label: 'SDI 4', id: '8' },
+			{ label: 'HDMI 5', id: '9' },
+			{ label: 'HDMI/RGB 6', id: '10' },
+		]
 	}
 
 	destroy() {
@@ -509,6 +523,18 @@ class instance extends instance_skel {
 					},
 				],
 			},
+			audio_mute: {
+				label: 'Mute/Unmute Audio',
+				options: [
+					{
+						type: 'dropdown',
+						label: 'Audio Source',
+						id: 'audiosource',
+						default: '0',
+						choices: this.CHOICES_MUTES,
+					},
+				],
+			},
 		}
 		this.setActions(actions)
 	}
@@ -598,6 +624,9 @@ class instance extends instance_skel {
 				break
 			case 'preset':
 				cmd = 'MEM:' + options.preset
+				break
+			case 'audio_mute':
+				cmd = 'IAM:' + options.audiosource
 				break
 		}
 
