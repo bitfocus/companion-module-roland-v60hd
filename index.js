@@ -10,6 +10,9 @@ class instance extends instance_skel {
 	constructor(system, id, config) {
 		super(system, id, config)
 
+		this.CONTROL_STX = '\u0002'
+		this.CONTROL_ACK = '\u0006'
+
 		this.cmdPipe = []
 		this.pollMixerTimer = undefined
 		this.buttonSet = []
@@ -96,27 +99,26 @@ class instance extends instance_skel {
 
 			this.socket.on('data', (receivebuffer) => {
 				pipeline += receivebuffer.toString('utf8')
-				if (pipeline.length == 1 && pipeline.charAt(0) == '\u0006') {
-					// process simple <ack> responses (06H) as these come back for all successsful Control commands
+
+				// ACKs are sent at the end of the stream result, we should have 1 command to 1 ack
+				if (pipeline.includes(this.CONTROL_ACK)) {
 					this.cmdPipeNext()
-					pipeline = ''
-				} else {
-					// partial response pipeline processing as TCP Serial module can return partial responses in stream.
-					if (pipeline.includes(';')) {
-						// got at least one command terminated with ';'
-						// multiple rapid Query strings can result in async multiple responses so split response into individual messages
-						let allresponses = pipeline.split(';')
-						// last element will either be a partial response an <ack> (processed next timer tick) or an empty string from split where a complete pipeline ends with ';'
-						pipeline = allresponses.pop() 
-						for (let response of allresponses) {
-							// Chance of leading <ack> responses from key commands or prior Query
-							while (response.charAt[0] == '\u0006') {
-								response = response.slice(1)
-								this.cmdPipeNext()
-							}
-							if (response.length > 0) {
-								this.processResponse(response)
-							}
+					if (pipeline.length == 1) pipeline = ''
+				}
+
+				// Every command ends with ; and an ACK or an ACK if nothing needed; `VER` is the only command that won't return an ACK, which we do not use
+				if (pipeline.includes(';')) {
+					// multiple rapid Query strings can result in async multiple responses so split response into individual messages
+					// however, the documentation for the V-60 says NOT to send more than 1 command before receiving the ACK from the last one,
+					// so we should always have one at a time
+					let allresponses = pipeline.split(';')
+					// last element will either be a partial response, an <ack> (processed next timer tick), or an empty string from split where a complete pipeline ends with ';'
+					pipeline = allresponses.pop()
+					for (let response of allresponses) {
+						response = response.replace(new RegExp(this.CONTROL_ACK, 'g'), '')
+
+						if (response.length > 0) {
+							this.processResponse(response)
 						}
 					}
 				}
@@ -128,7 +130,7 @@ class instance extends instance_skel {
 			const return_cmd = this.cmdPipe.shift()
 
 			if(this.cmdPipe.length > 0) {
-				this.socket.send('\u0002' + this.cmdPipe[0] + ';')
+				this.socket.send(this.CONTROL_STX + this.cmdPipe[0] + ';')
 			}
 
 			return return_cmd
@@ -182,7 +184,7 @@ class instance extends instance_skel {
 				this.cmdPipe.push(cmd)
 
 				if(this.cmdPipe.length === 1) {
-					this.socket.send('\u0002' + cmd + ';')
+					this.socket.send(this.CONTROL_STX + cmd + ';')
 				}
 			} else {
 				debug('Socket not connected :(')
