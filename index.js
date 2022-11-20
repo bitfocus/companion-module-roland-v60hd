@@ -16,6 +16,7 @@ class instance extends instance_skel {
 		this.cmdPipe = []
 		this.pollMixerTimer = undefined
 		this.buttonSet = []
+		this.lastReturnedCommand = ''
 
 		this.CHOICES_INPUTS = [
 			{ label: 'SDI IN 1', id: '0' },
@@ -116,7 +117,7 @@ class instance extends instance_skel {
 
 				// ACKs are sent at the end of the stream result, we should have 1 command to 1 ack
 				if (pipeline.includes(this.CONTROL_ACK)) {
-					this.cmdPipeNext()
+					this.lastReturnedCommand = this.cmdPipeNext()
 					if (pipeline.length == 1) pipeline = ''
 				}
 
@@ -140,24 +141,19 @@ class instance extends instance_skel {
 		}
 	}
 	cmdPipeNext() {
-		if (this.cmdPipe.length > 0) {
-			const return_cmd = this.cmdPipe.shift()
+		const return_cmd = this.cmdPipe.shift()
 
-			if(this.cmdPipe.length > 0) {
-				this.socket.send(this.CONTROL_STX + this.cmdPipe[0] + ';')
-			}
-
-			return return_cmd
-		} else {
-			this.log('error', 'Unexpected response count (pipe underrun)')
-			return ''
+		if(this.cmdPipe.length > 0) {
+			this.socket.send(this.CONTROL_STX + this.cmdPipe[0] + ';')
 		}
+
+		return return_cmd
 	}
 	processResponse(response) {
 		let category = 'XXX'
 		let args = []
 
-		const errorMessage = (errcode, pipeitem) => {
+		const errorMessage = (errcode) => {
 			let errstring = ''
 			switch (errcode) {
 				case '0':
@@ -173,7 +169,7 @@ class instance extends instance_skel {
 					errstring = '(UNKNOWN Error)'
 					break
 			}
-			this.log('error', 'ERR: ' + errstring + ' - Command = ' + pipeitem)
+			this.log('error', 'ERR: ' + errstring + ' - Command = ' + this.lastReturnedCommand)
 		}
  
 		let settingseparator = response.search(':')
@@ -188,7 +184,7 @@ class instance extends instance_skel {
 				this.checkFeedbacks()
 				break
 			case 'ERR':
-				errorMessage(args[0], this.cmdPipeNext())
+				errorMessage(args[0])
 			break
 		}	
 	}
