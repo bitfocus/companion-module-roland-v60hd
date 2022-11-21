@@ -327,6 +327,12 @@ class instance extends instance_skel {
 			dsk: {
 				label: 'Press the [DSK] button',
 			},
+			dsk_on: {
+				label: 'Turn DSK on',
+			},
+			dsk_off: {
+				label: 'Turn DSK off',
+			},
 			dsk_pvw: {
 				label: 'Press the DSK [PVW] button',
 			},
@@ -538,7 +544,7 @@ class instance extends instance_skel {
 	}
 
 	action(action) {
-		let cmd
+		let cmd = null
 		let options = action.options
 
 		switch (action.action) {
@@ -574,6 +580,16 @@ class instance extends instance_skel {
 				break
 			case 'dsk':
 				cmd = 'DSK'
+				break
+			case 'dsk_on':
+				if (this.buttonSet[4] !== '1') {
+					cmd = 'DSK'
+				}
+				break
+			case 'dsk_off':
+				if (this.buttonSet[4] == '1') {
+					cmd = 'DSK'
+				}
 				break
 			case 'dsk_pvw':
 				cmd = 'DVW'
@@ -628,13 +644,15 @@ class instance extends instance_skel {
 				break
 		}
 
-		if ('source' in options) {
-			this.parseVariables(options.source, (src) => {
-				this.sendCommmand(cmd + src);
-			});
-		} else {
-			this.sendCommmand(cmd)
-		}
+		if (cmd) {
+			if ('source' in options) {
+				this.parseVariables(options.source, (src) => {
+					this.sendCommmand(cmd + src);
+				});
+			} else {
+				this.sendCommmand(cmd)
+			}
+		}		
 	}
 
 	initFeedbacks() {
