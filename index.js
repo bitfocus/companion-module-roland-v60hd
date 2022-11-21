@@ -81,6 +81,17 @@ class instance extends instance_skel {
 		this.init_tcp()
 		this.initPolling()
 		this.initPresets()
+
+		this.setVariableDefinitions([
+			{ name: 'program', label: 'Currently active input' }, // #
+			{ name: 'preview', label: 'Input in preview' }, // #
+			{ name: 'aux', label: 'Input currently active in aux' }, // #
+			{ name: 'dsk_status', label: 'DSK is on or off' }, // 4 == 1
+			{ name: 'pip_1_status', label: 'PiP1 is on or off' }, // 3 = 1
+			{ name: 'pip_2_status', label: 'PiP2 is on or off' }, // 3 = 2
+			{ name: 'split_status', label: 'SPLIT is on or off' }, // 3 = 3
+			{ name: 'outputfade_status', label: 'Output fade is on or off' } // 5 == 1
+		]);
 	}
 
 	init_tcp() {
@@ -181,6 +192,16 @@ class instance extends instance_skel {
 		switch (category) {
 			case 'QPL': //button settings array (polled)
 				this.buttonSet = args
+
+				this.setVariable('program', parseInt(this.buttonSet[0]) + 1);
+				this.setVariable('preview', parseInt(this.buttonSet[1]) + 1);
+				this.setVariable('aux', parseInt(this.buttonSet[2]) + 1);
+				this.setVariable('dsk_status', this.buttonSet[4] === '1' ? 'on' : 'off');
+				this.setVariable('pip_1_status', this.buttonSet[3] === '1' ? 'on' : 'off');
+				this.setVariable('pip_2_status', this.buttonSet[3] === '2' ? 'on' : 'off');
+				this.setVariable('split_status', this.buttonSet[3] === '3' ? 'on' : 'off');
+				this.setVariable('outputfade_status', this.buttonSet[5] === '1' ? 'on' : 'off');
+
 				this.checkFeedbacks()
 				break
 			case 'ERR':
