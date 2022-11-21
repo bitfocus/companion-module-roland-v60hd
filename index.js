@@ -256,7 +256,7 @@ class instance extends instance_skel {
 				label: 'Polling Interval (ms), set to 0 to disable polling',
 				min: 0,
 				max: 30000,
-				default: 0,
+				default: 1000,
 				width: 8,
 			},
 		]
