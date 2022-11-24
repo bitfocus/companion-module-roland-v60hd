@@ -10,9 +10,13 @@ class instance extends instance_skel {
 	constructor(system, id, config) {
 		super(system, id, config)
 
+		this.CONTROL_STX = '\u0002'
+		this.CONTROL_ACK = '\u0006'
+
 		this.cmdPipe = []
 		this.pollMixerTimer = undefined
 		this.buttonSet = []
+		this.lastReturnedCommand = ''
 
 		this.CHOICES_INPUTS = [
 			{ label: 'SDI IN 1', id: '0' },
@@ -77,6 +81,17 @@ class instance extends instance_skel {
 		this.init_tcp()
 		this.initPolling()
 		this.initPresets()
+
+		this.setVariableDefinitions([
+			{ name: 'program', label: 'Currently active input' }, // #
+			{ name: 'preview', label: 'Input in preview' }, // #
+			{ name: 'aux', label: 'Input currently active in aux' }, // #
+			{ name: 'dsk_status', label: 'DSK is on or off' }, // 4 == 1
+			{ name: 'pip_1_status', label: 'PiP1 is on or off' }, // 3 = 1
+			{ name: 'pip_2_status', label: 'PiP2 is on or off' }, // 3 = 2
+			{ name: 'split_status', label: 'SPLIT is on or off' }, // 3 = 3
+			{ name: 'outputfade_status', label: 'Output fade is on or off' } // 5 == 1
+		]);
 	}
 
 	init_tcp() {
@@ -110,27 +125,26 @@ class instance extends instance_skel {
 
 			this.socket.on('data', (receivebuffer) => {
 				pipeline += receivebuffer.toString('utf8')
-				if (pipeline.length == 1 && pipeline.charAt(0) == '\u0006') {
-					// process simple <ack> responses (06H) as these come back for all successsful Control commands
-					this.cmdPipeNext()
-					pipeline = ''
-				} else {
-					// partial response pipeline processing as TCP Serial module can return partial responses in stream.
-					if (pipeline.includes(';')) {
-						// got at least one command terminated with ';'
-						// multiple rapid Query strings can result in async multiple responses so split response into individual messages
-						let allresponses = pipeline.split(';')
-						// last element will either be a partial response an <ack> (processed next timer tick) or an empty string from split where a complete pipeline ends with ';'
-						pipeline = allresponses.pop() 
-						for (let response of allresponses) {
-							// Chance of leading <ack> responses from key commands or prior Query
-							while (response.charAt[0] == '\u0006') {
-								response = response.slice(1)
-								this.cmdPipeNext()
-							}
-							if (response.length > 0) {
-								this.processResponse(response)
-							}
+
+				// ACKs are sent at the end of the stream result, we should have 1 command to 1 ack
+				if (pipeline.includes(this.CONTROL_ACK)) {
+					this.lastReturnedCommand = this.cmdPipeNext()
+					if (pipeline.length == 1) pipeline = ''
+				}
+
+				// Every command ends with ; and an ACK or an ACK if nothing needed; `VER` is the only command that won't return an ACK, which we do not use
+				if (pipeline.includes(';')) {
+					// multiple rapid Query strings can result in async multiple responses so split response into individual messages
+					// however, the documentation for the V-60 says NOT to send more than 1 command before receiving the ACK from the last one,
+					// so we should always have one at a time
+					let allresponses = pipeline.split(';')
+					// last element will either be a partial response, an <ack> (processed next timer tick), or an empty string from split where a complete pipeline ends with ';'
+					pipeline = allresponses.pop()
+					for (let response of allresponses) {
+						response = response.replace(new RegExp(this.CONTROL_ACK, 'g'), '')
+
+						if (response.length > 0) {
+							this.processResponse(response)
 						}
 					}
 				}
@@ -138,24 +152,19 @@ class instance extends instance_skel {
 		}
 	}
 	cmdPipeNext() {
-		if (this.cmdPipe.length > 0) {
-			const return_cmd = this.cmdPipe.shift()
+		const return_cmd = this.cmdPipe.shift()
 
-			if(this.cmdPipe.length > 0) {
-				this.socket.send('\u0002' + this.cmdPipe[0] + ';')
-			}
-
-			return return_cmd
-		} else {
-			this.log('error', 'Unexpected response count (pipe underrun)')
-			return ''
+		if(this.cmdPipe.length > 0) {
+			this.socket.send(this.CONTROL_STX + this.cmdPipe[0] + ';')
 		}
+
+		return return_cmd
 	}
 	processResponse(response) {
 		let category = 'XXX'
 		let args = []
 
-		const errorMessage = (errcode, pipeitem) => {
+		const errorMessage = (errcode) => {
 			let errstring = ''
 			switch (errcode) {
 				case '0':
@@ -171,7 +180,7 @@ class instance extends instance_skel {
 					errstring = '(UNKNOWN Error)'
 					break
 			}
-			this.log('error', 'ERR: ' + errstring + ' - Command = ' + pipeitem)
+			this.log('error', 'ERR: ' + errstring + ' - Command = ' + this.lastReturnedCommand)
 		}
  
 		let settingseparator = response.search(':')
@@ -183,10 +192,20 @@ class instance extends instance_skel {
 		switch (category) {
 			case 'QPL': //button settings array (polled)
 				this.buttonSet = args
+
+				this.setVariable('program', parseInt(this.buttonSet[0]) + 1);
+				this.setVariable('preview', parseInt(this.buttonSet[1]) + 1);
+				this.setVariable('aux', parseInt(this.buttonSet[2]) + 1);
+				this.setVariable('dsk_status', this.buttonSet[4] === '1' ? 'on' : 'off');
+				this.setVariable('pip_1_status', this.buttonSet[3] === '1' ? 'on' : 'off');
+				this.setVariable('pip_2_status', this.buttonSet[3] === '2' ? 'on' : 'off');
+				this.setVariable('split_status', this.buttonSet[3] === '3' ? 'on' : 'off');
+				this.setVariable('outputfade_status', this.buttonSet[5] === '1' ? 'on' : 'off');
+
 				this.checkFeedbacks()
 				break
 			case 'ERR':
-				errorMessage(args[0], this.cmdPipeNext())
+				errorMessage(args[0])
 			break
 		}	
 	}
@@ -196,7 +215,7 @@ class instance extends instance_skel {
 				this.cmdPipe.push(cmd)
 
 				if(this.cmdPipe.length === 1) {
-					this.socket.send('\u0002' + cmd + ';')
+					this.socket.send(this.CONTROL_STX + cmd + ';')
 				}
 			} else {
 				debug('Socket not connected :(')
@@ -237,7 +256,7 @@ class instance extends instance_skel {
 				label: 'Polling Interval (ms), set to 0 to disable polling',
 				min: 0,
 				max: 30000,
-				default: 0,
+				default: 1000,
 				width: 8,
 			},
 		]
