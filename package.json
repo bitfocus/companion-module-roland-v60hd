@@ -1,15 +1,6 @@
 {
 	"name": "roland-v60hd",
-	"version": "1.0.16",
-	"api_version": "1.0.0",
-	"keywords": [
-		"Vision Mixer",
-		"Video Switcher"
-	],
-	"manufacturer": "Roland",
-	"product": "V-60HD",
-	"shortname": "v-60hd",
-	"description": "V-60HD",
+	"version": "2.0.0",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -18,13 +9,11 @@
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-roland-v60hd.git"
 	},
-	"author": "Joseph Adams <josephdadams@gmail.com>",
-	"contributors": [
-		"James Rankin <james@rankinfamily.com>"
-	],
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-roland-v60hd/issues"
+	"dependencies": {
+		"@companion-module/base": "~1.4.1"
 	},
-	"homepage": "https://github.com/bitfocus/companion-module-roland-v60hd#readme"
+	"devDependencies": {
+		"@companion-module/tools": "^1.3.2"
+	}
 }
