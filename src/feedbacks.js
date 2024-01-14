@@ -15,7 +15,7 @@ module.exports = {
 					type: 'dropdown',
 					id: 'input',
 					label: 'Input',
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 					default: '0',
 				},
 			],
@@ -41,7 +41,7 @@ module.exports = {
 					type: 'dropdown',
 					id: 'input',
 					label: 'Input',
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 					default: '0',
 				},
 			],
@@ -67,7 +67,7 @@ module.exports = {
 					type: 'dropdown',
 					id: 'input',
 					label: 'Input',
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 					default: '0',
 				},
 			],
@@ -170,6 +170,6 @@ module.exports = {
 			},
 		}
 
-		this.setFeedbackDefinitions(feedbacks)
+		self.setFeedbackDefinitions(feedbacks)
 	}
 }

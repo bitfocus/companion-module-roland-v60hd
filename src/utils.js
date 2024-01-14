@@ -62,16 +62,20 @@ module.exports = {
 	},
 
 	cmdPipeNext: function() {
-		const return_cmd = this.cmdPipe.shift()
+		let self = this;
 
-		if(this.cmdPipe.length > 0) {
-			this.socket.send(this.CONTROL_STX + this.cmdPipe[0] + ';')
+		const return_cmd = self.cmdPipe.shift()
+
+		if(self.cmdPipe.length > 0) {
+			self.socket.send(self.CONTROL_STX + self.cmdPipe[0] + ';')
 		}
 
 		return return_cmd
 	},
 
 	processResponse: function(response) {
+		let self = this;
+
 		let category = 'XXX'
 		let args = []
 
@@ -91,7 +95,7 @@ module.exports = {
 					errstring = '(UNKNOWN Error)'
 					break
 			}
-			this.log('error', 'ERR: ' + errstring + ' - Command = ' + this.lastReturnedCommand)
+			self.log('error', 'ERR: ' + errstring + ' - Command = ' + self.lastReturnedCommand)
 		}
  
 		let settingseparator = response.search(':')
@@ -102,10 +106,10 @@ module.exports = {
 		} 
 		switch (category) {
 			case 'QPL': //button settings array (polled)
-				this.buttonSet = args
+				self.buttonSet = args
 
-				this.checkVariables();
-				this.checkFeedbacks();
+				self.checkVariables();
+				self.checkFeedbacks();
 				break
 			case 'ERR':
 				errorMessage(args[0]);
@@ -130,12 +134,14 @@ module.exports = {
 	},
 
 	initPolling: function() {
-		if (this.pollMixerTimer === undefined && this.config.poll_interval > 0) {
-			this.pollMixerTimer = setInterval(() => {
-				if(!this.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
-					this.sendCommmand('QPL:7')
+		let self = this;
+
+		if (self.pollMixerTimer === undefined && self.config.poll_interval > 0) {
+			self.pollMixerTimer = setInterval(() => {
+				if(!self.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
+					self.sendCommmand('QPL:7')
 				}
-			}, this.config.poll_interval)
+			}, self.config.poll_interval)
 		}
 	}
 }

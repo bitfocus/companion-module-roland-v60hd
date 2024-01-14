@@ -8,7 +8,7 @@ module.exports = {
 				id: 'info',
 				width: 12,
 				label: 'Information',
-				value: 'This module will connect to a Roland Pro AV V-60HD Video Switcher. (with feedbacks)',
+				value: 'This module will connect to a Roland Pro AV V-60HD Video Switcher.',
 			},
 			{
 				type: 'textinput',

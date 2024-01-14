@@ -1,8 +1,8 @@
 module.exports = {
 	initActions() {
 		let self = this;
-
 		let actions = {};
+
 		actions.select_pgm = {
 			name: 'Select PGM Channel',
 			options: [
@@ -12,7 +12,7 @@ module.exports = {
 					id: 'source',
 					default: '0',
 					allowCustom: true,
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 				},
 			],
 			callback: async (action) => {
@@ -32,7 +32,7 @@ module.exports = {
 					id: 'source',
 					default: '0',
 					allowCustom: true,
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 				},
 			],
 			callback: async (action) => {
@@ -52,7 +52,7 @@ module.exports = {
 					id: 'source',
 					default: '0',
 					allowCustom: true,
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 				},
 			],
 			callback: async (action) => {
@@ -160,7 +160,7 @@ module.exports = {
 			name: 'Turn DSK On',
 			options: [],
 			callback: async (action) => {
-				if (this.buttonSet[4] !== '1') {
+				if (self.buttonSet[4] !== '1') {
 					let cmd = 'DSK;';
 					self.sendCommand(cmd);
 				}
@@ -171,7 +171,7 @@ module.exports = {
 			name: 'Turn DSK Off',
 			options: [],
 			callback: async (action) => {
-				if (this.buttonSet[4] == '1') {
+				if (self.buttonSet[4] == '1') {
 					let cmd = 'DSK;';
 					self.sendCommand(cmd);
 				}
@@ -283,7 +283,7 @@ module.exports = {
 					id: 'source',
 					default: '0',
 					allowCustom: true,
-					choices: this.CHOICES_INPUTS,
+					choices: self.CHOICES_INPUTS,
 				},
 			],
 			callback: async (action) => {
@@ -357,7 +357,7 @@ module.exports = {
 					label: 'Bus',
 					id: 'bus',
 					default: '0',
-					choices: this.CHOICES_BUSES,
+					choices: self.CHOICES_BUSES,
 				},
 			],
 			callback: async (action) => {
@@ -375,7 +375,7 @@ module.exports = {
 					label: 'Bus',
 					id: 'bus',
 					default: '0',
-					choices: this.CHOICES_BUSES,
+					choices: self.CHOICES_BUSES,
 				},
 			],
 			callback: async (action) => {
@@ -393,7 +393,7 @@ module.exports = {
 					label: 'Bus',
 					id: 'bus',
 					default: '0',
-					choices: this.CHOICES_BUSES,
+					choices: self.CHOICES_BUSES,
 				},
 			],
 			callback: async (action) => {
@@ -411,7 +411,7 @@ module.exports = {
 					label: 'Bus',
 					id: 'bus',
 					default: '0',
-					choices: this.CHOICES_BUSES,
+					choices: self.CHOICES_BUSES,
 				},
 			],
 			callback: async (action) => {
@@ -477,7 +477,7 @@ module.exports = {
 					label: 'Audio Source',
 					id: 'audiosource',
 					default: '0',
-					choices: this.CHOICES_MUTES,
+					choices: self.CHOICES_MUTES,
 				},
 			],
 			callback: async (action) => {
@@ -487,6 +487,6 @@ module.exports = {
 			}
 		};		
 		
-		this.setActionDefinitions(actions)
+		self.setActionDefinitions(actions)
 	}
 }
