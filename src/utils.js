@@ -137,11 +137,15 @@ module.exports = {
 		let self = this;
 
 		if (self.pollMixerTimer === undefined && self.config.poll_interval > 0) {
-			self.pollMixerTimer = setInterval(() => {
-				if(!self.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
-					self.sendCommmand('QPL:7')
-				}
-			}, self.config.poll_interval)
+			self.pollMixerTimer = setInterval(sendQPL.bind(self), self.config.poll_interval)
+		}
+	},
+
+	sendQPL: function() {
+		let self = this;
+
+		if (!self.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
+			self.sendCommmand('QPL:7')
 		}
 	}
 }
