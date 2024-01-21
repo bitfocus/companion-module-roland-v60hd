@@ -137,7 +137,7 @@ module.exports = {
 		let self = this;
 
 		if (self.pollMixerTimer === undefined && self.config.poll_interval > 0) {
-			self.pollMixerTimer = setInterval(sendQPL.bind(self), self.config.poll_interval)
+			self.pollMixerTimer = setInterval(self.sendQPL.bind(self), self.config.poll_interval)
 		}
 	},
 
