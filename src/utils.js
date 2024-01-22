@@ -15,7 +15,7 @@ module.exports = {
 			self.config.port = 8023;
 		}
 	
-		if (self.config.host) {
+		if (self.config.host && self.config.host !== '') {
 			self.socket = new TCPHelper(self.config.host, self.config.port);
 		
 			self.socket.on('error', function (err) {
