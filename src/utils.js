@@ -145,7 +145,7 @@ module.exports = {
 		let self = this;
 
 		if (!self.cmdPipe.includes('QPL:7')) { // No need to flood the buffer with these
-			self.sendCommmand('QPL:7')
+			self.sendCommand('QPL:7')
 		}
 	}
 }
