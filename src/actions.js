@@ -4,7 +4,7 @@ module.exports = {
 		let actions = {};
 
 		actions.select_pgm = {
-			name: 'Select PGM Channel',
+			name: 'Select Program Channel',
 			options: [
 				{
 					type: 'dropdown',
@@ -24,7 +24,7 @@ module.exports = {
 		};
 		
 		actions.select_pvw = {
-			name: 'Select PVW Channel',
+			name: 'Select Preview/Preset Channel',
 			options: [
 				{
 					type: 'dropdown',
@@ -38,13 +38,13 @@ module.exports = {
 			callback: async (action) => {
 				let options = action.options;
 				let source = await self.parseVariablesInString(options.source);
-				let cmd = `PVW:${source};`;
+				let cmd = `PST:${source};`;
 				self.sendCommand(cmd);
 			}
 		};
 		
 		actions.select_aux = {
-			name: 'Select AUX Channel',
+			name: 'Select Aux Channel',
 			options: [
 				{
 					type: 'dropdown',

@@ -8,8 +8,8 @@ module.exports = {
 
 		feedbacks['program'] = {
 			type: 'boolean',
-			name: 'Program Status for input',
-			description: 'Show feedback for program state',
+			name: 'Program Status for Input',
+			description: 'Show feedback for Program State',
 			options: [
 				{
 					type: 'dropdown',
@@ -34,8 +34,8 @@ module.exports = {
 		}
 		feedbacks['preview'] = {
 			type: 'boolean',
-			name: 'Preset Status for input',
-			description: 'Show feedback for preset state',
+			name: 'Preview/Preset Status for Input',
+			description: 'Show feedback for Preview/Preset State',
 			options: [
 				{
 					type: 'dropdown',
