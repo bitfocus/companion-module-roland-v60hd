@@ -8,7 +8,7 @@ module.exports = {
 			type: 'button',
 			category: 'Video',
 			name: 'PROGRAM',
-			bank: {
+			style: {
 				text: 'Program',
 				size: '18',
 				color: combineRgb(255, 255, 255),
@@ -55,7 +55,7 @@ module.exports = {
 			type: 'button',
 			category: 'Video',
 			name: 'PRESET',
-			bank: {
+			style: {
 				text: 'Preset',
 				size: '18',
 				color: combineRgb(255, 255, 255),
